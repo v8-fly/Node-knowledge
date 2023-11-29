@@ -1,17 +1,14 @@
-const http = require("http")
-
-const port = 4080
-const hostname = "192.168.29.240"
-
-const server = http.createServer((req, res) => {
-  const data = { message: "Hi There Hardik" }
-
-  res.setHeader("Content-Type", "application/json")
-  res.setHeader("Connection", "close")
-  res.statusCode = 200
-  res.end(JSON.stringify(data))
+// Create a TCP server with net module
+// lowest level netwiorking in node
+// http is build over net module
+// ssh server build over net
+const net = require("net")
+const server = net.createServer((socket) => {
+  socket.on("data", (data) => {
+    // console.log(data)
+    console.log(data.toString("utf-8"))
+  })
 })
-
-server.listen(port, hostname, () => {
-  console.log(`Server running on hostname ${hostname} Port ${port}`)
+server.listen(3099, "127.0.0.1", () => {
+  console.log("Opened Port on", server.address())
 })
