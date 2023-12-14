@@ -1,62 +1,31 @@
 const { log } = require("node:console")
-const http = require("node:http")
-const fs = require("node:fs/promises")
+const Butter = require("./butter")
 
-const server = http.createServer()
+// we are basically calling http.createServer by caling new Butter()
+const server = new Butter()
+const PORT = 9000
 
-server.on("request", async (request, response) => {
-  log("server hit", request.url, request.method)
-  if (request.url === "/" && request.method === "GET") {
-    response.setHeader("Content-Type", "text/html")
-    const fileHandle = await fs.open("./public/index.html", "r")
-    const fileStream = fileHandle.createReadStream()
-    fileStream.pipe(response)
-  }
-  if (request.url === "/index.css" && request.method === "GET") {
-    response.setHeader("Content-Type", "text/css")
-    const fileHandle = await fs.open("./public/index.css", "r")
-    const fileStream = fileHandle.createReadStream()
-    fileStream.pipe(response)
-  }
-  if (request.url === "/public/minion.png" && request.method === "GET") {
-    response.setHeader("Content-Type", "image/x-png")
-    const fileHandle = await fs.open("./public/minion.png", "r")
-    const fileStream = fileHandle.createReadStream()
-    fileStream.pipe(response)
-  }
-  if (request.url === "/script.js" && request.method === "GET") {
-    response.setHeader("Content-Type", "text/javascript")
-    const fileHandle = await fs.open("./public/script.js", "r")
-    const fileStream = fileHandle.createReadStream()
-    fileStream.pipe(response)
-  }
-  if (request.url === "/getdataold" && request.method === "GET") {
-    response.setHeader("Content-Type", "text/html")
-    const fileHandle = await fs.open("./public/new.html", "r")
-    const fileStream = fileHandle.createReadStream()
-    fileStream.pipe(response)
-  }
-  if (request.url === "/getdatanew" && request.method === "POST") {
-    response.setHeader("Content-Type", "application/json")
-    response.statusCode = 200
-    const body = {
-      message: "loggin you in",
-    }
-    response.write(JSON.stringify(body))
-    response.end()
-  }
-  if (request.url === "/upload" && request.method === "PUT") {
-    const fileHandle = await fs.open("./storage/wallpaper.jpeg", "w")
-    const fileStream = fileHandle.createWriteStream()
-    request.pipe(fileStream)
-    request.on("end", () => {
-      response.setHeader("Content-Type", "application/json")
-      response.end(JSON.stringify({ message: "File uploaded succesfully" }))
-    })
-  }
-  //   upload route
+server.listen(PORT, () => {
+  log(`webserver is live at http://localhost:${PORT}`)
 })
 
-server.listen(9000, () => {
-  log("webserver is live at http://localhost:9000  ")
+// lets create soemething like
+server.route("get", "/", (req, res) => {
+  res.sendFile("./public/index.html", "text/html")
+})
+
+server.route("get", "/index.css", (req, res) => {
+  res.sendFile("./public/index.css", "text/css")
+})
+
+server.route("get", "/public/minion.png", (req, res) => {
+  res.sendFile("./public/minion.png", "image/x-png")
+})
+
+server.route("get", "/script.js", (req, res) => {
+  res.sendFile("./public/script.js", "text/javascript")
+})
+
+server.route("post", "/login", (req, res) => {
+  res.status(400).json({ message: "Bad Login" })
 })
